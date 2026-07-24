@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rifa Beneficente</title>
+<style>
+body{font-family:Arial,sans-serif;margin:0;background:#f7f7f7;color:#222}
+.container{max-width:700px;margin:auto;padding:20px}
+.card{background:white;border-radius:16px;padding:22px;margin:14px 0;box-shadow:0 2px 10px #0001}
+h1{text-align:center;margin:5px 0 10px}
+.subtitle{text-align:center}
+.prizes{display:grid;gap:8px}
+.prize{padding:10px;border-radius:10px;background:#f0f0f0}
+.info{line-height:1.6}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.num{border:0;border-radius:9px;padding:12px 4px;font-weight:bold;cursor:pointer;background:#dff5df}
+.num.sold{background:#777;color:white;cursor:not-allowed}
+.num.selected{background:#ffd966}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:14px}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:middle;margin-right:4px}
+.available{background:#dff5df}.sold-dot{background:#777}.selected-dot{background:#ffd966}
+input{width:100%;box-sizing:border-box;padding:12px;margin:6px 0;border:1px solid #ccc;border-radius:8px}
+button.submit{width:100%;padding:14px;border:0;border-radius:10px;background:#222;color:white;font-size:16px;font-weight:bold;cursor:pointer}
+.small{font-size:13px;color:#666}
+#summary{font-weight:bold;margin:10px 0}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="card">
+<h1>🎟️ Rifa Beneficente</h1>
+<p class="subtitle">Participe e ajude nessa causa! ❤️</p>
+<div class="info">
+<strong>Valor:</strong> R$ 10,00 por número<br>
+<strong>Pix:</strong> 030.713.100-99 — CPF Suelen
+</div>
+</div>
+
+<div class="card">
+<h2>🎁 Prêmios</h2>
+<div class="prizes">
+<div class="prize">🥇 1º prêmio: Panela elétrica</div>
+<div class="prize">🥈 2º prêmio: Sanduicheira</div>
+<div class="prize">🥉 3º prêmio: Ventilador</div>
+</div>
+</div>
+
+<div class="card">
+<h2>🔢 Escolha seus números</h2>
+<div class="legend">
+<span><i class="dot available"></i>Disponível</span>
+<span><i class="dot sold-dot"></i>Vendido/Pago</span>
+<span><i class="dot selected-dot"></i>Selecionado</span>
+</div>
+<p class="small">Toque nos números disponíveis para selecionar.</p>
+<div id="grid" class="grid"></div>
+<div id="summary">Nenhum número selecionado.</div>
+</div>
+
+<div class="card">
+<h2>📝 Seus dados</h2>
+<input id="name" placeholder="Seu nome">
+<input id="phone" placeholder="Seu WhatsApp">
+<button class="submit" onclick="sendWhatsApp()">Enviar pedido pelo WhatsApp</button>
+<p class="small">Após escolher, envie o pedido. O número só será considerado vendido após a confirmação do pagamento.</p>
+</div>
+</div>
+
+<script>
+const sold = new Set([6,9,10,12,14,21,23,26,28]);
+let selected = new Set();
+const grid = document.getElementById('grid');
+const summary = document.getElementById('summary');
+
+for(let i=1;i<=250;i++){
+  const b=document.createElement('button');
+  b.className='num'+(sold.has(i)?' sold':'');
+  b.textContent=String(i).padStart(2,'0');
+  b.disabled=sold.has(i);
+  b.onclick=()=>{
+    if(selected.has(i)) selected.delete(i); else selected.add(i);
+    b.classList.toggle('selected',selected.has(i));
+    updateSummary();
+  };
+  grid.appendChild(b);
+}
+
+function updateSummary(){
+  const arr=[...selected].sort((a,b)=>a-b);
+  summary.textContent=arr.length
+    ? `Selecionados: ${arr.map(n=>String(n).padStart(2,'0')).join(', ')} — Total: R$ ${(arr.length*10).toFixed(2).replace('.',',')}`
+    : 'Nenhum número selecionado.';
+}
+
+function sendWhatsApp(){
+  const name=document.getElementById('name').value.trim();
+  const phone=document.getElementById('phone').value.trim();
+  const arr=[...selected].sort((a,b)=>a-b);
+  if(!name || !phone || !arr.length){
+    alert('Preencha seu nome, WhatsApp e escolha pelo menos um número.');
+    return;
+  }
+  const nums=arr.map(n=>String(n).padStart(2,'0')).join(', ');
+  const total=(arr.length*10).toFixed(2).replace('.',',');
+  const msg=`Olá! Quero participar da Rifa Beneficente.%0A%0ANome: ${encodeURIComponent(name)}%0AWhatsApp: ${encodeURIComponent(phone)}%0ANúmeros escolhidos: ${nums}%0ATotal: R$ ${total}%0A%0APix: 030.713.100-99 — CPF Suelen%0A%0AEnviarei o comprovante do pagamento.`;
+  alert('A estrutura está pronta! Para ativar o envio automático, precisamos colocar o número de WhatsApp da organizadora no código antes de publicar.');
+}
+</script>
+</body>
+</html>
